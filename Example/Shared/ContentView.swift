@@ -12,7 +12,7 @@ struct ContentView: View {
     @State private var image:UIImage?
     var body: some View {
         NavigationView{
-            CustomCameraView(image: $image).navigationBarHidden(true)
+            CustomCameraView(image: $image)
         }
     }
 }

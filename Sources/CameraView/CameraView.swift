@@ -10,7 +10,8 @@ let BIG_HEIGHT:CGFloat = UIScreen.main.bounds.height
 let BOTTOM_HEIGHT = UIApplication.shared.windows.filter {$0.isKeyWindow}.first?.safeAreaInsets.bottom ?? 0
 
 public struct CustomCameraView:View{
-
+    @Environment(\.presentationMode) var presentationMode
+    
     @Binding var image:UIImage?
     
     @State var cameraManager:CameraManager = CameraManager()
@@ -43,28 +44,34 @@ public struct CustomCameraView:View{
         if selectedImage != nil {
             SelectedImageView(selectedImage: $selectedImage){image in
                 self.image = image
-            }
+            }.navigationBarHidden(true)
         }else{
             ZStack(alignment: .center){
                 CameraViewControllerRepresentable(cameraManager: cameraManager).frame(width: UIScreen.main.bounds.width, height: isFullPreview ? BIG_HEIGHT : SMALL_HEIGHT, alignment: .center).id(isFullPreview)
                 
                 VStack(spacing:0){
                     HStack(alignment: .bottom){
-                        Group{
-                            switch flashMode{
-                                case .auto:
-                                    Image(systemName: "bolt.badge.a").resizable()
-                                case .off:
-                                    Image(systemName:"bolt.slash").resizable()
-                                case .on:
-                                    Image(systemName:"bolt").resizable()
-                            }
-                        }.scaledToFit().frame(width: 30, height: 30, alignment: .center).contentShape(Rectangle())
-                            .highPriorityGesture(TapGesture().onEnded({ _ in
-                                
-                                flashMode = cameraManager.changeFlashMode()
-                                
-                            }))
+//                        Group{
+//                            switch flashMode{
+//                                case .auto:
+//                                    Image(systemName: "bolt.badge.a").resizable()
+//                                case .off:
+//                                    Image(systemName:"bolt.slash").resizable()
+//                                case .on:
+//                                    Image(systemName:"bolt").resizable()
+//                            }
+//                        }.scaledToFit().frame(width: 30, height: 30, alignment: .center).contentShape(Rectangle())
+//                            .highPriorityGesture(TapGesture().onEnded({ _ in
+//
+//                                flashMode = cameraManager.changeFlashMode()
+//
+//                            }))
+                        Image(systemName: "xmark.circle").resizable().frame(width: 30, height: 30, alignment: .center).contentShape(Rectangle()).highPriorityGesture(TapGesture().onEnded({ _ in
+                            
+                            presentationMode.wrappedValue.dismiss()
+                            
+                        }))
+                        
                         Spacer()
                         Image(systemName:isFullPreview ? "arrow.down.right.and.arrow.up.left.circle.fill" : "arrow.up.backward.and.arrow.down.forward.circle.fill").resizable().frame(width: 30, height: 30, alignment: .center).contentShape(Rectangle()).highPriorityGesture(TapGesture().onEnded({ _ in
                             
@@ -120,7 +127,7 @@ public struct CustomCameraView:View{
                     fetchFirstPhoto()
                 }
                 
-            }.background(Color.black).edgesIgnoringSafeArea(.all)
+            }.background(Color.black).edgesIgnoringSafeArea(.all).navigationBarHidden(true)
         }
         
     }
