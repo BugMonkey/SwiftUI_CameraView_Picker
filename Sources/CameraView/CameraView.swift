@@ -10,8 +10,7 @@ let BIG_HEIGHT:CGFloat = UIScreen.main.bounds.height
 let BOTTOM_HEIGHT = UIApplication.shared.windows.filter {$0.isKeyWindow}.first?.safeAreaInsets.bottom ?? 0
 
 public struct CustomCameraView:View{
-    @Environment(\.presentationMode) var presentationMode
-    
+
     @Binding var image:UIImage?
     
     @State var cameraManager:CameraManager = CameraManager()
@@ -44,7 +43,6 @@ public struct CustomCameraView:View{
         if selectedImage != nil {
             SelectedImageView(selectedImage: $selectedImage){image in
                 self.image = image
-                presentationMode.wrappedValue.dismiss()
             }
         }else{
             ZStack(alignment: .center){
