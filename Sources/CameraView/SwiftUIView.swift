@@ -7,14 +7,32 @@
 
 import SwiftUI
 
-struct SwiftUIView: View {
+struct SelectedImageView: View {
+    
+    @Binding var selectedImage:UIImage?
+    
+    let confirmed:(UIImage?)->Void
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ZStack{
+            Image(uiImage: selectedImage ?? UIImage()).resizable().scaledToFit().frame(width: UIScreen.main.bounds.width, height: nil, alignment: .center)
+            VStack(spacing:0){
+                Spacer()
+                
+                HStack{
+                    Text("取消").onTapGesture {
+                        selectedImage = nil
+                    }
+                    
+                    Spacer()
+                    
+                    Text("使用照片").onTapGesture {
+                        confirmed(selectedImage)
+                    }
+                }.font(.system(size: 16)).padding(15).foregroundColor(.white).background(Color.black.opacity(0.8)).frame(width: UIScreen.main.bounds.width, height: nil, alignment: .center)
+            }
+        }.background(Color.black.edgesIgnoringSafeArea(.all))
     }
 }
 
-struct SwiftUIView_Previews: PreviewProvider {
-    static var previews: some View {
-        SwiftUIView()
-    }
-}
+

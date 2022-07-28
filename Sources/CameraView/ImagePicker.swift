@@ -10,31 +10,34 @@ import SwiftUI
 public struct ImagePicker: UIViewControllerRepresentable {
     public typealias UIViewControllerType = UIImagePickerController
     
-    @Environment(\.presentationManager) var presentationManager
+    @Environment(\.presentationMode) var presentationMode
     
     let info: Binding<[UIImagePickerController.InfoKey: Any]?>?
-    let image: Binding<AppKitOrUIKitImage?>?
+    let image: Binding<UIImage?>?
     let data: Binding<Data?>?
     
-    let encoding: Image.Encoding?
+
     var allowsEditing = false
     var cameraDevice: UIImagePickerController.CameraDevice?
-    var sourceType: UIImagePickerController.SourceType = .photoLibrary
+    var sourceType: UIImagePickerController.SourceType = .savedPhotosAlbum
     var mediaTypes: [String]?
     var onCancel: (() -> Void)?
     
     public func makeUIViewController(context: Context) -> UIViewControllerType {
-        UIImagePickerController().then {
-            $0.delegate = context.coordinator
-        }
+        let controller = UIImagePickerController()
+        controller.delegate = context.coordinator
+
+        return controller
     }
     
     public func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
         context.coordinator.base = self
-        
+        UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
+        UINavigationBar.appearance().backgroundColor = .systemBackground
+    
         uiViewController.allowsEditing = allowsEditing
         uiViewController.sourceType = sourceType
-        
+  
         if let mediaTypes = mediaTypes, uiViewController.mediaTypes != mediaTypes  {
             uiViewController.mediaTypes = mediaTypes
         }
@@ -59,16 +62,16 @@ public struct ImagePicker: UIViewControllerRepresentable {
             
             base.info?.wrappedValue = info
             base.image?.wrappedValue = image
-            base.data?.wrappedValue = (image?._fixOrientation() ?? image)?.data(using: base.encoding ?? .png)
+            base.data?.wrappedValue = (image?._fixOrientation() ?? image)?.pngData()
             
-            base.presentationManager.dismiss()
+            base.presentationMode.wrappedValue.dismiss()
         }
         
         public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
             if let onCancel = base.onCancel {
                 onCancel()
             } else {
-                base.presentationManager.dismiss()
+                base.presentationMode.wrappedValue.dismiss()
             }
         }
     }
@@ -88,65 +91,41 @@ extension ImagePicker {
         self.info = info
         self.image = nil
         self.data = nil
-        self.encoding = nil
+        
         self.onCancel = onCancel
     }
     
     public init(
-        image: Binding<AppKitOrUIKitImage?>,
-        encoding: Image.Encoding? = nil,
+        image: Binding<UIImage?>,
+
         onCancel: (() -> Void)? = nil
     ) {
         self.info = nil
         self.image = image
         self.data = nil
-        self.encoding = encoding
+      
         self.onCancel = onCancel
     }
     
     public init(
         data: Binding<Data?>,
-        encoding: Image.Encoding? = nil,
+      
         onCancel: (() -> Void)? = nil
     ) {
         self.info = nil
         self.image = nil
         self.data = data
-        self.encoding = encoding
+      
         self.onCancel = onCancel
     }
 }
 
-extension ImagePicker {
-    public func allowsEditing(_ allowsEditing: Bool) -> Self {
-        then({ $0.allowsEditing = allowsEditing })
-    }
-    
-    public func cameraDevice(_ cameraDevice: UIImagePickerController.CameraDevice?) -> Self {
-        then({ $0.cameraDevice = cameraDevice })
-    }
-    
-    public func sourceType(_ sourceType: UIImagePickerController.SourceType) -> Self {
-        then({ $0.sourceType = sourceType })
-    }
-    
-    public func mediaTypes(_ mediaTypes: [String]) -> Self {
-        then({ $0.mediaTypes = mediaTypes })
-    }
-}
+
 
 // MARK: - Helpers -
 
 extension UIImage {
-    @inlinable
-    func data(using encoding: Image.Encoding) -> Data? {
-        switch encoding {
-            case .png:
-                return pngData()
-            case .jpeg(let compressionQuality):
-                return jpegData(compressionQuality: compressionQuality)
-        }
-    }
+
     
     func _fixOrientation() -> UIImage? {
         guard imageOrientation != .up else {

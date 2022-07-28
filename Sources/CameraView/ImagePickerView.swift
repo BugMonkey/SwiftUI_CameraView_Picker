@@ -38,8 +38,8 @@ public struct ImagePickerView: UIViewControllerRepresentable {
     }
     
     public func updateUIViewController(_ controller: PHPickerViewController, context: Context) {
-        controller.findNestedUINavigationController()?.navigationBar.backgroundColor = .systemBackground
-        controller.findNestedUINavigationController()?.navigationBar.tintColor = .AccentColor
+//        controller.findNestedUINavigationController()?.navigationBar.backgroundColor = .systemBackground
+//        controller.findNestedUINavigationController()?.navigationBar.tintColor = .AccentColor
 //        controller.navigationController?.navigationBar.isHidden = true
 //        UINavigationBar.appearance().backgroundColor = .systemBackground
 //        UINavigationBar.appearance().tintColor = .AccentColor
