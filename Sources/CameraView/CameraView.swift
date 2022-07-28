@@ -6,6 +6,9 @@ let SMALL_HEIGHT:CGFloat = UIScreen.main.bounds.width / 3.0 * 4.0
 
 let BIG_HEIGHT:CGFloat = UIScreen.main.bounds.height
 
+let STATUS_BAR_HEIGHT = UIApplication.shared.windows.first?.windowScene?.statusBarManager?.statusBarFrame.size.height ?? 0
+
+
 ///底部安全区域高度
 let BOTTOM_HEIGHT = UIApplication.shared.windows.filter {$0.isKeyWindow}.first?.safeAreaInsets.bottom ?? 0
 
@@ -33,8 +36,7 @@ public struct CustomCameraView:View{
     public func setupCameraManager(){
         cameraManager.cameraDevice = cameraDevice
         cameraManager.imageAlbumName =  "ZNet 春军扫网"
-        cameraManager.shouldEnableExposure = true
-        cameraManager.writeFilesToPhoneLibrary = true
+        cameraManager.writeFilesToPhoneLibrary = false
         cameraManager.showErrorsToUsers = true
         cameraManager.cameraOutputQuality = .hd1920x1080
 
@@ -47,10 +49,10 @@ public struct CustomCameraView:View{
             }.navigationBarHidden(true)
         }else{
             ZStack(alignment: .center){
-                CameraViewControllerRepresentable(cameraManager: cameraManager).frame(width: UIScreen.main.bounds.width, height: isFullPreview ? BIG_HEIGHT : SMALL_HEIGHT, alignment: .center).id(isFullPreview)
+                CameraViewControllerRepresentable(cameraManager: cameraManager).frame(width: UIScreen.main.bounds.width, height: isFullPreview ? BIG_HEIGHT : SMALL_HEIGHT, alignment: .center).edgesIgnoringSafeArea(.all).id(isFullPreview)
                 
                 VStack(spacing:0){
-                    HStack(alignment: .bottom){
+                    HStack(){
 //                        Group{
 //                            switch flashMode{
 //                                case .auto:
@@ -66,14 +68,14 @@ public struct CustomCameraView:View{
 //                                flashMode = cameraManager.changeFlashMode()
 //
 //                            }))
-                        Image(systemName: "xmark.circle").resizable().frame(width: 30, height: 30, alignment: .center).contentShape(Rectangle()).highPriorityGesture(TapGesture().onEnded({ _ in
+                        Image(systemName: "xmark.circle").resizable().frame(width: 30, height: 30, alignment: .center).padding(.horizontal,15).contentShape(Rectangle()).highPriorityGesture(TapGesture().onEnded({ _ in
                             
                             presentationMode.wrappedValue.dismiss()
                             
                         }))
                         
                         Spacer()
-                        Image(systemName:isFullPreview ? "arrow.down.right.and.arrow.up.left.circle.fill" : "arrow.up.backward.and.arrow.down.forward.circle.fill").resizable().frame(width: 30, height: 30, alignment: .center).contentShape(Rectangle()).highPriorityGesture(TapGesture().onEnded({ _ in
+                        Image(systemName:isFullPreview ? "arrow.down.right.and.arrow.up.left.circle.fill" : "arrow.up.backward.and.arrow.down.forward.circle.fill").resizable().frame(width: 30, height: 30, alignment: .center).padding(.horizontal,15).contentShape(Rectangle()).highPriorityGesture(TapGesture().onEnded({ _ in
                             
                             isFullPreview.toggle()
                             cameraManager = CameraManager()
@@ -83,7 +85,7 @@ public struct CustomCameraView:View{
                         }))
                         
                         
-                    }.padding(.bottom,5).padding(.horizontal,15).frame(width: nil, height: 86, alignment: .bottom).foregroundColor(.white)
+                    }.padding(.bottom,5).frame(width: nil, height: 40, alignment: .bottom).foregroundColor(.white).padding(.top,STATUS_BAR_HEIGHT)
                     
                     
                     Spacer()
@@ -127,7 +129,7 @@ public struct CustomCameraView:View{
                     fetchFirstPhoto()
                 }
                 
-            }.background(Color.black).edgesIgnoringSafeArea(.all).navigationBarHidden(true)
+            }.edgesIgnoringSafeArea(.all).background(Color.black.edgesIgnoringSafeArea(.all)).navigationBarHidden(true)
         }
         
     }
