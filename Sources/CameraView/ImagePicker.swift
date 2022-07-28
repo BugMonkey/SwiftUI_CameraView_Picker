@@ -37,7 +37,7 @@ public struct ImagePicker: UIViewControllerRepresentable {
     
         uiViewController.allowsEditing = allowsEditing
         uiViewController.sourceType = sourceType
-  
+        uiViewController.modalPresentationStyle = .fullScreen
         if let mediaTypes = mediaTypes, uiViewController.mediaTypes != mediaTypes  {
             uiViewController.mediaTypes = mediaTypes
         }
