@@ -4,10 +4,7 @@ import Photos
 
 let SMALL_HEIGHT:CGFloat = UIScreen.main.bounds.width / 3.0 * 4.0
 
-let BIG_HEIGHT:CGFloat = UIScreen.main.bounds.height
-
-let STATUS_BAR_HEIGHT = UIApplication.shared.windows.first?.windowScene?.statusBarManager?.statusBarFrame.size.height ?? 0
-
+let STATUS_BAR_HEIGHT = UIApplication.shared.windows.first?.windowScene?.statusBarManager?.statusBarFrame.size.height ?? 5
 
 ///底部安全区域高度
 let BOTTOM_HEIGHT = UIApplication.shared.windows.filter {$0.isKeyWindow}.first?.safeAreaInsets.bottom ?? 0
@@ -38,7 +35,13 @@ public struct CustomCameraView:View{
         cameraManager.imageAlbumName =  "ZNet 春军扫网"
         cameraManager.writeFilesToPhoneLibrary = false
         cameraManager.showErrorsToUsers = true
-        cameraManager.cameraOutputQuality = .hd1920x1080
+        let newPreset:AVCaptureSession.Preset = isFullPreview ? .hd1920x1080 : .high
+        if cameraManager.canSetPreset(preset: newPreset) ?? false{
+            cameraManager.cameraOutputQuality = newPreset
+        }else{
+            cameraManager.cameraOutputQuality = .high
+        }
+        
 
     }
     
@@ -49,10 +52,10 @@ public struct CustomCameraView:View{
             }.navigationBarHidden(true)
         }else{
             ZStack(alignment: .center){
-                CameraViewControllerRepresentable(cameraManager: cameraManager).frame(width: UIScreen.main.bounds.width, height: isFullPreview ? BIG_HEIGHT : SMALL_HEIGHT, alignment: .center).edgesIgnoringSafeArea(.all).id(isFullPreview)
+                CameraViewControllerRepresentable(cameraManager: cameraManager).frame(width: UIScreen.main.bounds.width, height: isFullPreview ? nil : SMALL_HEIGHT, alignment: .center).edgesIgnoringSafeArea(.all).id(isFullPreview)
                 
                 VStack(spacing:0){
-                    HStack(){
+                    HStack{
 //                        Group{
 //                            switch flashMode{
 //                                case .auto:
@@ -85,7 +88,7 @@ public struct CustomCameraView:View{
                         }))
                         
                         
-                    }.padding(.bottom,5).frame(width: nil, height: 40, alignment: .bottom).foregroundColor(.white).padding(.top,STATUS_BAR_HEIGHT)
+                    }.padding(.bottom,5).frame(width: nil, height: 40, alignment: .bottom).foregroundColor(.white).padding(.top,STATUS_BAR_HEIGHT).edgesIgnoringSafeArea(.top)
                     
                     
                     Spacer()
@@ -95,14 +98,18 @@ public struct CustomCameraView:View{
                             ImagePicker(image: $selectedImage).navigationBarHidden(true)
                         } label: {
                             Image(uiImage: firstPhoto ?? UIImage.init().withTintColor(.darkGray)).resizable().scaledToFill().frame(width: 45, height: 45).cornerRadius(2).clipShape(Rectangle())
-                        }
+                        }.buttonStyle(PlainButtonStyle())
 
                        
                         
                         Spacer()
                         
                         Button(action: {
-                            cameraManager.cameraOutputQuality = isFullPreview ? .hd1920x1080 : .high
+                            let newPreset:AVCaptureSession.Preset = isFullPreview ? .hd1920x1080 : .high
+                            
+                            if cameraManager.canSetPreset(preset: newPreset) ?? false{
+                                cameraManager.cameraOutputQuality = newPreset
+                            }
                             cameraManager.capturePictureWithCompletion { result in
                                 switch result {
                                     case .success(let value):
@@ -115,21 +122,26 @@ public struct CustomCameraView:View{
                         }, label: {
                             Color.white.frame(width: 50, height: 50, alignment: .center).clipShape(Circle()).padding(4).overlay(Circle().stroke(lineWidth: 2).foregroundColor(.white))
                         })
+                        
                         Spacer()
+                      
                         
                         Button(action: {
                             cameraManager.cameraDevice = cameraManager.cameraDevice == .back ? .front : .back
                             cameraDevice = cameraManager.cameraDevice
+                            
                         }, label: {
-                            Image(systemName: "arrow.triangle.2.circlepath").foregroundColor(.white).frame(width: 45, height: 45, alignment: .center).background(Color.white.opacity(0.1).clipShape(Circle()))
+                            Image(systemName: "arrow.triangle.2.circlepath").foregroundColor(.white).frame(width: 45, height: 45, alignment: .center).background(Color.black.opacity(0.5).clipShape(Circle()))
                         })
                         
-                    }.padding(15).padding(.bottom,BOTTOM_HEIGHT).background(Color.black.opacity(0.2))
+                    }.padding(.horizontal,15).padding(.vertical,8).padding(.bottom,BOTTOM_HEIGHT).edgesIgnoringSafeArea(.bottom)
+                    
+                    
                 }.onAppear {
                     fetchFirstPhoto()
                 }
                 
-            }.edgesIgnoringSafeArea(.all).background(Color.black.edgesIgnoringSafeArea(.all)).navigationBarHidden(true)
+            }.background(Color.black.edgesIgnoringSafeArea(.all)).navigationBarHidden(true)
         }
         
     }
