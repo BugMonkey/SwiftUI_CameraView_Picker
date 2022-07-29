@@ -18,7 +18,7 @@ public struct CustomCameraView:View{
     
     @State var firstPhoto:UIImage?
     
-    @State var isFullPreview:Bool = true
+    @State var isFullPreview:Bool = false
     
     @State var flashMode:CameraFlashMode = .auto
     
@@ -35,13 +35,7 @@ public struct CustomCameraView:View{
         cameraManager.imageAlbumName =  "ZNet 春军扫网"
         cameraManager.writeFilesToPhoneLibrary = false
         cameraManager.showErrorsToUsers = true
-        let newPreset:AVCaptureSession.Preset = isFullPreview ? .hd1920x1080 : .high
-        if cameraManager.canSetPreset(preset: newPreset) ?? false{
-            cameraManager.cameraOutputQuality = newPreset
-        }else{
-            cameraManager.cameraOutputQuality = .high
-        }
-        
+        cameraManager.shouldRespondToOrientationChanges = false
 
     }
     
@@ -105,10 +99,14 @@ public struct CustomCameraView:View{
                         Spacer()
                         
                         Button(action: {
-                            let newPreset:AVCaptureSession.Preset = isFullPreview ? .hd1920x1080 : .high
-                            
+                            if !cameraManager.cameraIsReady{
+                                return
+                            }
+                            let newPreset:AVCaptureSession.Preset = isFullPreview ? .hd4K3840x2160 : .high
                             if cameraManager.canSetPreset(preset: newPreset) ?? false{
                                 cameraManager.cameraOutputQuality = newPreset
+                            }else{
+                                cameraManager.cameraOutputQuality = .high
                             }
                             cameraManager.capturePictureWithCompletion { result in
                                 switch result {
@@ -127,6 +125,9 @@ public struct CustomCameraView:View{
                       
                         
                         Button(action: {
+                           
+                            
+                           
                             cameraManager.cameraDevice = cameraManager.cameraDevice == .back ? .front : .back
                             cameraDevice = cameraManager.cameraDevice
                             
