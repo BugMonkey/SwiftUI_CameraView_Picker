@@ -15,7 +15,7 @@ struct SelectedImageView: View {
     
     var body: some View {
         ZStack{
-            Image(uiImage: selectedImage ?? UIImage()).resizable().scaledToFit().frame(width: UIScreen.main.bounds.width, height: nil, alignment: .center)
+            Image(uiImage: selectedImage ?? UIImage()).resizable().scaledToFit().frame(width: UIScreen.main.bounds.width, height: nil, alignment: .center).edgesIgnoringSafeArea(.all)
             VStack(spacing:0){
                 Spacer()
                 
