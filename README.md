@@ -10,7 +10,7 @@ The Swift Package Manager is a tool for managing the distribution of Swift code.
 ```
 let package = Package(
     dependencies: [
-        .Package(url: "https://gitee.com/BugMonkey/swiftUI_camera_view_picker").branch("master")) 
+        .Package(url: "https://github.com/BugMonkey/SwiftUI_CameraView_Picker").branch("master")) 
 ```
 
 # How to use
